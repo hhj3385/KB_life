@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/az200/OneDrive/Dokumen/īī���� ���� ����/kb/kb/**)",
+      "PowerShell(pnpm --version)",
+      "PowerShell(node --version)",
+      "PowerShell(npm install -g pnpm)",
+      "Bash(npm install *)",
+      "Bash(pnpm --version)",
+      "Bash(pnpm install *)",
+      "Bash(DATABASE_URL=\"file:./prisma/dev.db\" npx prisma migrate dev --name init)"
+    ]
+  }
+}

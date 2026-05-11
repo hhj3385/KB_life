@@ -1,0 +1,60 @@
+/* ── KBFG Display ─────────────────────────────────────── */
+@font-face {
+  font-family: "KBFG Display";
+  src: url("/assets/fonts/KBFGDisplayL.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "KBFG Display";
+  src: url("/assets/fonts/KBFGDisplayM.ttf") format("truetype");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "KBFG Display";
+  src: url("/assets/fonts/KBFGDisplayB.ttf") format("truetype");
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── KBFG Text ────────────────────────────────────────── */
+@font-face {
+  font-family: "KBFG Text";
+  src: url("/assets/fonts/KBFGTextL.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "KBFG Text";
+  src: url("/assets/fonts/KBFGTextM.ttf") format("truetype");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "KBFG Text";
+  src: url("/assets/fonts/KBFGTextB.ttf") format("truetype");
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── CSS 변수 ─────────────────────────────────────────── */
+:root {
+  --font-display: "KBFG Display", system-ui, sans-serif;
+  --font-body:    "KBFG Text",    system-ui, sans-serif;
+}
+
+body, html {
+  font-family: var(--font-body);
+}
+
+/* h1~h3은 Display체 사용 */
+h1, h2, h3 {
+  font-family: var(--font-display);
+}

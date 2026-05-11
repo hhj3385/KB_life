@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Uploads (personal photos - privacy)
+uploads/
+server/uploads/
+
+# DB
+*.db
+*.db-journal
+server/prisma/*.db
+server/prisma/*.db-journal
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+
+# Large binary/doc files
+*.zip
+*.hwp
+*.docx
+*.pdf
+*.pptx

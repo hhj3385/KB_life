@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  consentedAt DateTime?
+
+  // 입장 사진 (홈서버 로컬 저장)
+  photoPath   String?
+
+  // 검사 응답 12개 — SQLite array 미지원으로 JSON string 저장
+  responses   String?
+  lastAnswerAt DateTime?
+
+  // 결과 — enum 대신 string ("investigator"|"helper"|"leader"|"innovator")
+  resultType  String?
+  // 유형별 점수 — JSON string { investigator: 12, helper: 9, leader: 8, innovator: 7 }
+  scores      String?
+
+  // 캐릭터 (통이미지 방식 — accessory 단일 카테고리)
+  gender      String?
+  hair        Int?
+  accessory   String?  // "none"|"cap"|"beanie"|"band"(F)|"bucket"(M)|"glasses"
+
+  // 봉사자증
+  nickname    String?
+  pledge      String?
+  cardNo      String?  @unique
+  issuedAt    DateTime?
+
+  // 뽑기
+  prizeDrawn  Boolean  @default(false)
+  prizeRank   Int?
+  drawnAt     DateTime?
+
+  @@index([createdAt])
+  @@index([resultType])
+}
+
+model Prize {
+  id        Int    @id @default(autoincrement())
+  rank      Int
+  name      String
+  total     Int
+  remaining Int
+}
+
+model EventLog {
+  id        Int      @id @default(autoincrement())
+  sessionId String?
+  type      String
+  // JSON string — SQLite Json? 미지원
+  meta      String?
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+}
