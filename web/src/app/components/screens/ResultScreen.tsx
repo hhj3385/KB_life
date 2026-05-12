@@ -2,7 +2,6 @@ import { ChevronLeft, Share2 } from "lucide-react";
 import { RESULT_CONTENT } from "@kb-booth/shared";
 import type { ResultType } from "@kb-booth/shared";
 import { CHAR_BY_TYPE } from "../Characters";
-import { AppHeader } from "../../../components/layout/AppHeader";
 
 const TYPE_COLOR: Record<ResultType, string> = {
   investigator: "#6BB5FF",
@@ -30,11 +29,7 @@ export function ResultScreen({ type, onNext, onShare }: ResultScreenProps) {
         style={{ background: `linear-gradient(180deg, ${color}55 0%, ${color}22 40%, #FFF9E6 75%)` }}
       />
 
-      <div className="relative">
-        <AppHeader pageLabel="검사 결과" />
-      </div>
-
-      <div className="relative px-6 pt-2">
+<div className="relative px-6 pt-2">
         <div className="flex items-center justify-between">
           <button className="w-9 h-9 rounded-full bg-white/80 backdrop-blur shadow-sm flex items-center justify-center">
             <ChevronLeft className="w-5 h-5 text-[#1E1E1E]" />

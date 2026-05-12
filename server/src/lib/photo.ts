@@ -4,7 +4,8 @@ import { fileURLToPath } from "url";
 import { randomUUID } from "crypto";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOADS_ROOT = path.resolve(__dirname, "../../uploads");
+const UPLOADS_ROOT = process.env.UPLOADS_DIR
+  ?? path.resolve(__dirname, "../../uploads");
 
 // 파일을 uploads/{YYYY-MM-DD}/{uuid}.{ext} 에 저장하고 상대 경로 반환
 export async function savePhoto(buffer: Buffer, originalName: string): Promise<string> {

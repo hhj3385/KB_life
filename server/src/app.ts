@@ -12,6 +12,7 @@ import { testRoutes } from "./routes/test.js";
 import { characterRoutes } from "./routes/character.js";
 import { issueRoutes } from "./routes/issue.js";
 import { photoRoutes } from "./routes/photo.js";
+import { adminRoutes } from "./routes/admin.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -45,7 +46,9 @@ export async function buildApp(opts: { logger?: boolean } = {}) {
     keyGenerator: (req) => req.ip,
   });
 
-  const uploadsDir = path.resolve(__dirname, "../../uploads");
+  // 업로드 파일 서빙 — 프로덕션에서는 /data/uploads (Railway 볼륨)
+  const uploadsDir = process.env.UPLOADS_DIR
+    ?? path.resolve(__dirname, "../../uploads");
   await app.register(fastifyStatic, {
     root: uploadsDir,
     prefix: "/uploads/",
@@ -53,11 +56,26 @@ export async function buildApp(opts: { logger?: boolean } = {}) {
     serve: false,
   });
 
+  // 프로덕션: Vite 빌드 결과물 서빙 + SPA fallback
+  if (process.env.NODE_ENV === "production") {
+    const webDist = path.resolve(__dirname, "../../../web/dist");
+    await app.register(fastifyStatic, {
+      root: webDist,
+      prefix: "/",
+      decorateReply: true,
+      wildcard: false,
+    });
+    app.setNotFoundHandler((_req, reply) => {
+      reply.sendFile("index.html", webDist);
+    });
+  }
+
   await app.register(sessionRoutes);
   await app.register(testRoutes);
   await app.register(characterRoutes);
   await app.register(issueRoutes);
   await app.register(photoRoutes);
+  await app.register(adminRoutes);
 
   app.get("/health", async () => ({ ok: true, ts: new Date().toISOString() }));
 

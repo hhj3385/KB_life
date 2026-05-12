@@ -8,7 +8,11 @@ const SOURCES = [
   { key: "MMTIC", label: "MMTIC", desc: "비판단적 청소년 친화 문항 톤" },
 ];
 
-export function SourceSlide() {
+interface SourceSlideProps {
+  onExpandChange?: (expanded: boolean) => void;
+}
+
+export function SourceSlide({ onExpandChange }: SourceSlideProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -26,7 +30,11 @@ export function SourceSlide() {
       </div>
 
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          const next = !open;
+          setOpen(next);
+          onExpandChange?.(next);
+        }}
         className="bg-white rounded-2xl p-4 shadow-[0_8px_24px_rgba(30,30,30,0.06)] text-left w-full"
       >
         <div className="flex items-center justify-between">

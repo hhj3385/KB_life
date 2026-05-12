@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "concurrently -n web,server -c blue,green \"pnpm --filter @kb-booth/web dev\" \"pnpm --filter @kb-booth/server dev\"",
     "build": "pnpm --filter @kb-booth/shared build && pnpm --filter @kb-booth/web build && pnpm --filter @kb-booth/server build",
+    "start": "node server/dist/index.js",
     "test": "pnpm --filter @kb-booth/shared test",
     "migrate": "pnpm --filter @kb-booth/server exec prisma migrate dev",
     "migrate:reset": "pnpm --filter @kb-booth/server exec prisma migrate reset"

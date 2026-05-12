@@ -72,7 +72,8 @@ export function ShareSheet({ onClose, onSave, onKakao, onInstagram, loading }: S
         </div>
 
         <p className="mt-4 text-center text-[#1E1E1E]/40 text-[11px]">
-          카카오톡·인스타 버튼은 기기 공유 메뉴를 통해 앱을 선택하세요
+          모바일에서는 기기 공유 메뉴로 앱을 선택하고,
+          <br />PC에서는 이미지를 저장 후 앱에서 업로드하세요
         </p>
       </div>
     </div>

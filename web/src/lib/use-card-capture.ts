@@ -2,13 +2,39 @@ import html2canvas from "html2canvas";
 import { useState, useEffect, useCallback, type RefObject } from "react";
 
 const FILE_NAME = "예비봉사자증.png";
+const SHARE_TITLE = "전국청소년자원봉사대회 예비 봉사자증";
+const SHARE_TEXT = "전국청소년자원봉사대회 예비 봉사자증을 발급받았어요! 🌱\n#청소년봉사 #전국청소년자원봉사대회 #봉사자증";
+
+async function captureCard(el: HTMLElement): Promise<Blob> {
+  await document.fonts.ready;
+  const canvas = await html2canvas(el, {
+    scale: 3,
+    // useCORS와 allowTaint를 동시에 쓰면 충돌. 동일 출처 자산이므로 allowTaint만 사용.
+    allowTaint: true,
+    useCORS: false,
+    backgroundColor: null,
+    logging: false,
+    imageTimeout: 8000,
+    onclone: (_doc, cloned) => {
+      // html2canvas는 mix-blend-mode 미지원 → 캡처 전 제거
+      cloned.querySelectorAll<HTMLElement>("[style]").forEach((el) => {
+        if (el.style.mixBlendMode) el.style.mixBlendMode = "normal";
+      });
+    },
+  });
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("이미지 생성에 실패했어요."));
+    }, "image/png");
+  });
+}
 
 export function useCardCapture(cardRef: RefObject<HTMLDivElement | null>) {
   const [cachedBlob, setCachedBlob] = useState<Blob | null>(null);
   const [capturing, setCapturing] = useState(false);
 
-  // 페이지 진입 후 1.2초 뒤 자동 pre-capture
-  // (폰트·이미지 렌더 완료 대기 후)
+  // 페이지 진입 후 1.2초 뒤 자동 pre-capture (폰트·이미지 렌더 완료 대기 후)
   useEffect(() => {
     let cancelled = false;
     const timer = setTimeout(async () => {
@@ -16,19 +42,8 @@ export function useCardCapture(cardRef: RefObject<HTMLDivElement | null>) {
       if (!el || cancelled) return;
       setCapturing(true);
       try {
-        await document.fonts.ready;
-        const canvas = await html2canvas(el, {
-          scale: 3,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: null,
-          logging: false,
-          imageTimeout: 8000,
-        });
-        const blob = await new Promise<Blob | null>((r) =>
-          canvas.toBlob(r, "image/png")
-        );
-        if (!cancelled && blob) setCachedBlob(blob);
+        const blob = await captureCard(el);
+        if (!cancelled) setCachedBlob(blob);
       } catch {
         // pre-capture 실패 시 버튼 클릭 때 재시도
       } finally {
@@ -40,40 +55,29 @@ export function useCardCapture(cardRef: RefObject<HTMLDivElement | null>) {
       cancelled = true;
       clearTimeout(timer);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getBlob = useCallback(async (): Promise<Blob> => {
     if (cachedBlob) return cachedBlob;
-
-    // pre-capture 실패 시 즉시 재시도
     const el = cardRef.current;
     if (!el) throw new Error("카드 요소를 찾을 수 없어요.");
-    await document.fonts.ready;
-    const canvas = await html2canvas(el, {
-      scale: 3, useCORS: true, allowTaint: true,
-      backgroundColor: null, logging: false, imageTimeout: 8000,
-    });
-    const blob = await new Promise<Blob | null>((r) =>
-      canvas.toBlob(r, "image/png")
-    );
-    if (!blob) throw new Error("이미지 생성에 실패했어요.");
+    const blob = await captureCard(el);
     setCachedBlob(blob);
     return blob;
   }, [cachedBlob, cardRef]);
 
-  // 다운로드 — 모바일은 share API 우선, 없으면 새 탭
+  // 이미지 저장 — 모바일은 시스템 공유 시트, 데스크탑은 직접 다운로드
   const download = useCallback(async () => {
     const blob = await getBlob();
     const file = new File([blob], FILE_NAME, { type: "image/png" });
 
-    // Android/iOS 모바일 — 시스템 공유 시트 ("갤러리에 저장" 포함)
     if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], title: "KB 봉사자증 저장" });
+      await navigator.share({ files: [file], title: SHARE_TITLE });
       return;
     }
 
-    // 데스크탑 — 직접 다운로드
+    // 데스크탑 직접 다운로드
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -81,31 +85,31 @@ export function useCardCapture(cardRef: RefObject<HTMLDivElement | null>) {
     a.style.display = "none";
     document.body.appendChild(a);
     a.click();
-    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1000);
   }, [getBlob]);
 
-  // SNS 공유 — 시스템 공유 시트 (카카오·인스타 선택)
-  const share = useCallback(async () => {
+  // SNS 공유 — 시스템 공유 시트 (모바일에서 카카오·인스타 선택 가능)
+  // 반환값: "shared" | "downloaded" | "unsupported"
+  const share = useCallback(async (): Promise<"shared" | "downloaded" | "unsupported"> => {
     const blob = await getBlob();
     const file = new File([blob], FILE_NAME, { type: "image/png" });
 
     if (navigator.canShare?.({ files: [file] })) {
       try {
-        await navigator.share({
-          title: "전국청소년자원봉사대회 예비 봉사자증",
-          text: "전국청소년자원봉사대회 예비 봉사자증을 발급받았어요! 🌱\n#청소년봉사 #전국청소년자원봉사대회 #봉사자증",
-          files: [file],
-        });
-        return true;
+        await navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, files: [file] });
+        return "shared";
       } catch (e) {
-        if (e instanceof Error && e.name === "AbortError") return false;
+        if (e instanceof Error && e.name === "AbortError") return "unsupported";
         throw e;
       }
     }
 
-    // 공유 API 미지원 → 다운로드 대체
+    // 데스크탑 — 파일 공유 미지원 → 이미지 다운로드 후 안내
     await download();
-    return false;
+    return "downloaded";
   }, [getBlob, download]);
 
   return { download, share, capturing, ready: !!cachedBlob };

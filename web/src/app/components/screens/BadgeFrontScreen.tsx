@@ -78,11 +78,11 @@ export function BadgeFrontScreen({
           />
 
           {/* Header */}
-          <div className="px-5 pt-5 flex items-center justify-between relative">
+          <div className="px-5 pt-2 flex items-center justify-between relative">
             <img
               src={BRAND.logoContest}
               alt={BRAND.contest}
-              style={{ height: 22, width: "auto", mixBlendMode: "multiply" }}
+              style={{ height: 40, width: "auto", mixBlendMode: "multiply" }}
             />
             <span className="text-[#1E1E1E]/70 text-[10px]" style={{ fontWeight: 600 }}>
               VOLUNTEER ID

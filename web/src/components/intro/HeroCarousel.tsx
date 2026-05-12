@@ -10,10 +10,16 @@ import { SourceSlide } from "./SourceSlide";
 const SLIDE_DURATION = 4000;
 const RESUME_DELAY = 5000;
 
-function SlideContent({ kind }: { kind: (typeof INTRO_SLIDES)[number]["kind"] }) {
+function SlideContent({
+  kind,
+  onSourceExpand,
+}: {
+  kind: (typeof INTRO_SLIDES)[number]["kind"];
+  onSourceExpand?: (expanded: boolean) => void;
+}) {
   switch (kind) {
     case "type-grid":          return <TypeGridSlide />;
-    case "source":             return <SourceSlide />;
+    case "source":             return <SourceSlide onExpandChange={onSourceExpand} />;
     case "character-panorama": return <CharacterPanoramaSlide />;
     case "badge-preview":      return <BadgePreviewSlide />;
     case "logo":               return <LogoSlide />;
@@ -29,10 +35,12 @@ export function HeroCarousel({ onStart }: HeroCarouselProps) {
   const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const resumeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pausedByExpand = useRef(false);
 
   const slide = INTRO_SLIDES[index];
 
   const startAutoPlay = useCallback(() => {
+    if (pausedByExpand.current) return;
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setDirection(1);
@@ -44,6 +52,16 @@ export function HeroCarousel({ onStart }: HeroCarouselProps) {
     if (timerRef.current) clearInterval(timerRef.current);
     if (resumeRef.current) clearTimeout(resumeRef.current);
     resumeRef.current = setTimeout(startAutoPlay, RESUME_DELAY);
+  }, [startAutoPlay]);
+
+  const handleSourceExpand = useCallback((expanded: boolean) => {
+    pausedByExpand.current = expanded;
+    if (expanded) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (resumeRef.current) clearTimeout(resumeRef.current);
+    } else {
+      resumeRef.current = setTimeout(startAutoPlay, RESUME_DELAY);
+    }
   }, [startAutoPlay]);
 
   useEffect(() => {
@@ -108,7 +126,7 @@ export function HeroCarousel({ onStart }: HeroCarouselProps) {
             transition={{ duration: 0.35, ease: "easeInOut" }}
             className="absolute inset-0"
           >
-            <SlideContent kind={slide.kind} />
+            <SlideContent kind={slide.kind} onSourceExpand={handleSourceExpand} />
           </motion.div>
         </AnimatePresence>
       </div>
