@@ -37,7 +37,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
     const avgMs =
       completedSessions.length > 0
         ? completedSessions.reduce(
-            (sum, s) => sum + (s.issuedAt!.getTime() - s.createdAt.getTime()),
+            (sum: number, s) => sum + (s.issuedAt!.getTime() - s.createdAt.getTime()),
             0,
           ) / completedSessions.length
         : 0;
@@ -52,7 +52,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
         prizeDrawn: prizeDrawnCount,
         avgMinutes: Math.round((avgMs / 60000) * 10) / 10,
         byType: Object.fromEntries(
-          byType.map((b) => [b.resultType, b._count.resultType]),
+          byType.map((b: { resultType: string | null; _count: { resultType: number } }) => [b.resultType, b._count.resultType]),
         ),
       },
     };
