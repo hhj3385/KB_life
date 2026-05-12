@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { ResultType, CharacterConfig, Gender, Accessory } from "@kb-booth/shared";
 import { DEFAULT_CHARACTER } from "@kb-booth/shared";
 import { CharacterImage } from "../../../components/character/CharacterImage";
+import { AppHeader } from "../../../components/layout/AppHeader";
 
 const TYPE_COLOR: Record<ResultType, string> = {
   investigator: "#6BB5FF",
@@ -58,16 +59,17 @@ export function CharacterCustomizationScreen({ resultType, initial, onNext, onBa
   const updateGender = (g: Gender) => setConfig(defaultForGender(g));
 
   return (
-    <div className="relative min-h-full pt-12 pb-28 px-6">
+    <div className="relative min-h-full pb-28">
+      <AppHeader pageLabel="캐릭터 설정" />
       {/* 배경 그라데이션 */}
       <div
         className="absolute top-0 left-0 right-0 h-40 pointer-events-none"
         style={{ background: `linear-gradient(180deg, ${accent}18 0%, transparent 100%)` }}
       />
 
-      <div className="relative">
+      <div className="relative px-6">
         {/* 헤더 */}
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-2 flex items-center justify-between">
           <button
             onClick={onBack}
             className="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center"

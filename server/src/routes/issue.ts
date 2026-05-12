@@ -38,13 +38,13 @@ export async function issueRoutes(fastify: FastifyInstance) {
         });
       }
 
-      const { nickname, pledge } = parsed.data;
+      const { nickname, pledge, realName, contact, birthDate } = parsed.data;
       const cardNo = await issueCardNo();
       const issuedAt = new Date();
 
       await prisma.session.update({
         where: { id: session.id },
-        data: { nickname: nickname ?? null, pledge, cardNo, issuedAt },
+        data: { nickname: nickname ?? null, pledge, realName, contact, birthDate, cardNo, issuedAt },
       });
 
       await prisma.eventLog.create({

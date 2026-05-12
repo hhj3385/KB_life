@@ -1,7 +1,8 @@
-import { Download, Share2, RotateCw, QrCode } from "lucide-react";
-import { RESULT_CONTENT, DEFAULT_CHARACTER } from "@kb-booth/shared";
+import { Download, Share2, RotateCw, Instagram } from "lucide-react";
+import { RESULT_CONTENT, DEFAULT_CHARACTER, BRAND } from "@kb-booth/shared";
 import type { ResultType, CharacterConfig } from "@kb-booth/shared";
 import { CharacterImage } from "../../../components/character/CharacterImage";
+import { AppHeader } from "../../../components/layout/AppHeader";
 
 const TYPE_COLOR: Record<ResultType, string> = {
   investigator: "#6BB5FF",
@@ -24,7 +25,7 @@ interface BadgeBackScreenProps {
 export function BadgeBackScreen({
   type,
   character,
-  cardNo = "KB-2026-00001",
+  cardNo = "전국청소년자원봉사대회-2026-00001",
   issuedAt = "2026.05.11",
   onFlip,
   onDownload,
@@ -38,20 +39,12 @@ export function BadgeBackScreen({
   const char = character ?? { gender: "F" as const, ...DEFAULT_CHARACTER[type].F };
 
   return (
-    <div className="relative min-h-full pt-8 pb-32 px-5 overflow-y-auto">
-
-      {/* A. 헤더 */}
-      <div className="flex items-center justify-between">
-        <div className="bg-[#1E1E1E] rounded-md px-2 py-1">
-          <span className="text-[#FFCC00] text-[11px]" style={{ fontWeight: 800 }}>KB 라이프</span>
-        </div>
-        <span className="text-[#1E1E1E]/60 text-[10px]" style={{ fontWeight: 600 }}>
-          BACK SIDE
-        </span>
-      </div>
+    <div className="relative min-h-full pb-32 overflow-y-auto">
+      <AppHeader pageLabel="BACK SIDE" />
+      <div className="px-5">
 
       {/* B. 결과 헤드라인: 캐릭터 + 코드 + 유형명 */}
-      <div className="mt-6 bg-white rounded-2xl p-4 shadow-[0_8px_24px_rgba(30,30,30,0.06)] flex items-center gap-3">
+      <div className="mt-4 bg-white rounded-2xl p-4 shadow-[0_8px_24px_rgba(30,30,30,0.06)] flex items-center gap-3">
         <div className="flex-shrink-0">
           <CharacterImage
             gender={char.gender}
@@ -69,7 +62,7 @@ export function BadgeBackScreen({
         </div>
       </div>
 
-      {/* C. 마이크로 카피 — 따옴표 인용구 박스 */}
+      {/* C. 마이크로 카피 */}
       <div className="mt-4 rounded-2xl p-4 relative" style={{ background: `${color}20` }}>
         <div
           className="absolute -top-2 -left-1 text-[32px] opacity-30"
@@ -109,40 +102,49 @@ export function BadgeBackScreen({
         </div>
       </div>
 
-      {/* F. KB 대회 안내 박스 + QR */}
-      <div className="mt-4 bg-gradient-to-br from-[#FFCC00]/10 to-[#FFF9E6] rounded-2xl p-4 border border-[#FFCC00]/30">
-        <div className="flex items-start gap-3">
-          <div className="flex-1">
-            <div className="text-[#1E1E1E] text-[12px]" style={{ fontWeight: 800 }}>
-              KB 라이프 전국청소년자원봉사대회 10기
-            </div>
-            <p className="mt-1 text-[#1E1E1E]/70 text-[10px] leading-snug">
-              청소년의 봉사 아이디어를 응원하는 국내 최고 청소년 자원봉사대회
-            </p>
-          </div>
-          <div className="flex-shrink-0">
-            <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center shadow-sm">
-              <QrCode className="w-8 h-8 text-[#1E1E1E]/20" />
+      {/* F. 공식 인스타그램 박스 */}
+      <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Instagram className="w-5 h-5 text-pink-500" />
+          <div>
+            <div className="text-[#1E1E1E]/50 text-[9px]">공식 인스타그램</div>
+            <div className="text-[#1E1E1E] text-[12px]" style={{ fontWeight: 700 }}>
+              @{BRAND.instagramHandle}
             </div>
           </div>
         </div>
+        {BRAND.instagramUrl ? (
+          <a
+            href={BRAND.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full px-3 py-1.5 text-[11px] text-white"
+            style={{ background: "linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)", fontWeight: 700 }}
+          >
+            팔로우하기
+          </a>
+        ) : (
+          <span className="text-[#1E1E1E]/40 text-[10px]">곧 공개</span>
+        )}
       </div>
 
-      {/* G. 마무리 멘트 — CLAUDE.md 고정 문구 */}
+      {/* G. 마무리 멘트 */}
       <div className="mt-4 bg-[#FFCC00] rounded-2xl p-3 text-center">
         <p className="text-[#1E1E1E] text-[11px]" style={{ fontWeight: 700 }}>
-          KB 라이프 청소년자원봉사대회,<br />여러분의 참여를 기다릴게요!
+          {BRAND.closingMessage}
         </p>
       </div>
 
-      {/* H. 발급 정보 (작게) */}
+      {/* H. 발급 정보 */}
       <div className="mt-4 bg-white/50 rounded-xl p-3 space-y-1">
-        <InfoRow label="NO." value={cardNo} mono />
-        <InfoRow label="발급일" value={issuedAt} mono />
-        <InfoRow label="발급기관" value="KB 라이프 10기 서포터즈" />
+        <InfoRow label="NO." value={cardNo} />
+        <InfoRow label="발급일" value={issuedAt} />
+        <InfoRow label="발급기관" value={BRAND.operator} />
       </div>
 
-      {/* I. 액션 버튼 + 메인 CTA */}
+      </div>{/* /px-5 */}
+
+      {/* I. 액션 버튼 + CTA */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#F5F1E6] pt-3 pb-6 px-5 border-t border-[#1E1E1E]/5">
         <div className="grid grid-cols-3 gap-2 mb-3">
           <ActionBtn icon={<RotateCw className="w-4 h-4" />} label="앞면" onClick={onFlip} />
@@ -161,14 +163,11 @@ export function BadgeBackScreen({
   );
 }
 
-function InfoRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-[#1E1E1E]/50 text-[9px]">{label}</span>
-      <span
-        className="text-[#1E1E1E] text-[9px]"
-        style={{ fontWeight: 700 }}
-      >
+      <span className="text-[#1E1E1E] text-[9px]" style={{ fontWeight: 700 }}>
         {value}
       </span>
     </div>

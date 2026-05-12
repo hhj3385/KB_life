@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { CharacterImage } from "../character/CharacterImage";
+import { BRAND } from "@kb-booth/shared";
 
 // 봉사자증 미리보기 — 더미 데이터
 export function BadgePreviewSlide() {
@@ -30,21 +31,16 @@ function MiniCard() {
       {/* Header */}
       <div className="px-4 pt-4 flex items-center justify-between">
         <img
-          src="/assets/logos/kb-life.png"
-          alt="KB 라이프"
-          style={{ height: 14, width: "auto", mixBlendMode: "multiply" }}
+          src={BRAND.logoContest}
+          alt={BRAND.contest}
+          style={{ height: 16, width: "auto", mixBlendMode: "multiply" }}
         />
         <span className="text-[#1E1E1E]/60" style={{ fontSize: 8, fontFamily: "KBFG Text", fontWeight: 600 }}>
           VOLUNTEER ID
         </span>
       </div>
       <div className="px-4 mt-1">
-        <div className="text-[#1E1E1E]" style={{ fontSize: 13, fontWeight: 800 }}>10기 봉사자증</div>
-        <img
-          src="/assets/logos/volunteer.png"
-          alt="전국중고생 자원봉사대회"
-          style={{ height: 18, width: "auto", marginTop: 2, mixBlendMode: "multiply" }}
-        />
+        <div className="text-[#1E1E1E]" style={{ fontSize: 12, fontWeight: 800 }}>예비 봉사자증</div>
       </div>
 
       {/* Body */}
@@ -98,8 +94,8 @@ function MiniCard() {
 
       {/* Footer */}
       <div className="px-4 py-2 mt-2 flex items-center justify-between">
-        <span className="text-[#1E1E1E]/50" style={{ fontSize: 8, fontFamily: "KBFG Text" }}>
-          NO. KB-2026-00001
+        <span className="text-[#1E1E1E]/50" style={{ fontSize: 7, fontFamily: "KBFG Text" }}>
+          NO. 전국청소년자원봉사대회-2026-00001
         </span>
         <div className="flex gap-0.5">
           {["#FF7E6B", "#B5A0E5", "#5DD3B0", "#6BB5FF"].map((c) => (

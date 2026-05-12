@@ -1,5 +1,6 @@
-import { ChevronLeft, ClipboardList, Award, IdCard, Clock, MessageCircleHeart } from "lucide-react";
+import { ChevronLeft, ClipboardList, Award, IdCard, Clock, MessageCircleHeart, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { AppHeader } from "../../../components/layout/AppHeader";
 
 interface TestIntroScreenProps {
   onNext: () => void;
@@ -10,14 +11,10 @@ export function TestIntroScreen({ onNext, onBack }: TestIntroScreenProps) {
   const [consented, setConsented] = useState(false);
 
   return (
-    <div className="relative min-h-full pt-12 pb-28 px-6">
-      <div className="mt-2 flex items-center gap-2">
-        <div className="bg-[#FFCC00] rounded-lg px-2 py-1">
-          <span className="text-[#1E1E1E] tracking-tight text-[11px]" style={{ fontWeight: 700 }}>KB 라이프</span>
-        </div>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between">
+    <div className="relative min-h-full pb-28">
+      <AppHeader pageLabel="검사 안내" />
+      <div className="px-6 pt-2">
+      <div className="flex items-center justify-between">
         <button
           onClick={onBack}
           className="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center"
@@ -83,10 +80,12 @@ export function TestIntroScreen({ onNext, onBack }: TestIntroScreenProps) {
         <span className="text-[#1E1E1E] text-[13px] leading-snug" style={{ fontWeight: 600 }}>
           개인정보 수집·이용에 동의합니다.<br />
           <span className="text-[#1E1E1E]/50 font-normal text-[11px]">
-            (검사 응답은 봉사자증 발급 목적으로만 사용되며 행사 종료 후 자동 삭제됩니다)
+            응답한 자료는 봉사자증 발급 및 2026 전국청소년자원봉사대회 개최·모집 안내를 목적으로만 사용되며 목적 달성 후 완전 삭제합니다.
           </span>
         </span>
       </label>
+
+      </div>{/* /px-6 */}
 
       <div className="absolute bottom-6 left-6 right-6">
         <button

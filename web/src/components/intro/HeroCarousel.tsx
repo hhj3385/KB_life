@@ -5,16 +5,18 @@ import { TypeGridSlide } from "./TypeGridSlide";
 import { CharacterPanoramaSlide } from "./CharacterPanoramaSlide";
 import { BadgePreviewSlide } from "./BadgePreviewSlide";
 import { LogoSlide } from "./LogoSlide";
+import { SourceSlide } from "./SourceSlide";
 
 const SLIDE_DURATION = 4000;
 const RESUME_DELAY = 5000;
 
 function SlideContent({ kind }: { kind: (typeof INTRO_SLIDES)[number]["kind"] }) {
   switch (kind) {
-    case "type-grid":       return <TypeGridSlide />;
+    case "type-grid":          return <TypeGridSlide />;
+    case "source":             return <SourceSlide />;
     case "character-panorama": return <CharacterPanoramaSlide />;
-    case "badge-preview":   return <BadgePreviewSlide />;
-    case "logo":            return <LogoSlide />;
+    case "badge-preview":      return <BadgePreviewSlide />;
+    case "logo":               return <LogoSlide />;
   }
 }
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { PledgeScreen } from "../app/components/screens/PledgeScreen";
+import type { PledgeFormData } from "../app/components/screens/PledgeScreen";
 import { useSession } from "../lib/session-context";
 import { api, ApiError } from "../lib/api";
 
@@ -16,13 +17,19 @@ export function PledgePage() {
     return null;
   }
 
-  const handleNext = async (nickname: string, pledge: string) => {
+  const handleNext = async (data: PledgeFormData) => {
     if (busy || !id) return;
     setBusy(true);
     setError(null);
-    setPledgeInfo(nickname, pledge);
+    setPledgeInfo(data.nickname, data.pledge);
     try {
-      const { cardNo } = await api.session.issue(id, { nickname: nickname || undefined, pledge });
+      const { cardNo } = await api.session.issue(id, {
+        nickname: data.nickname || undefined,
+        pledge: data.pledge,
+        realName: data.realName,
+        contact: data.contact,
+        birthDate: data.birthDate,
+      });
       setCardNo(cardNo);
       void navigate(`/s/${id}/card`);
     } catch (e) {
@@ -36,7 +43,7 @@ export function PledgePage() {
       <PledgeScreen
         resultType={resultType}
         character={character ?? undefined}
-        onNext={(nickname, pledge) => void handleNext(nickname, pledge)}
+        onNext={(data) => void handleNext(data)}
         onBack={() => void navigate(-1)}
       />
       {busy && (

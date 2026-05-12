@@ -37,6 +37,9 @@ export const CharacterUpdateSchema = characterSchema;
 export const IssueCardSchema = z.object({
   nickname: z.string().max(20).optional(),
   pledge: z.string().min(1).max(50),
+  realName: z.string().min(1).max(20),
+  contact: z.string().regex(/^010-\d{3,4}-\d{4}$/, "010-XXXX-XXXX 형식으로 입력해주세요"),
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD 형식으로 입력해주세요"),
 });
 
 // 공통 API 응답 형태

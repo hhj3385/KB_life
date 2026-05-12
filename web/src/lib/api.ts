@@ -53,7 +53,10 @@ export const api = {
         body: JSON.stringify(config),
       }),
 
-    issue: (id: string, payload: { nickname?: string; pledge: string }) =>
+    issue: (
+      id: string,
+      payload: { nickname?: string; pledge: string; realName: string; contact: string; birthDate: string },
+    ) =>
       request<{ cardNo: string; issuedAt: string }>(`/api/session/${id}/issue`, {
         method: "POST",
         body: JSON.stringify(payload),

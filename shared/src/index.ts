@@ -5,3 +5,4 @@ export * from "./scoring.js";
 export * from "./schemas.js";
 export * from "./character.js";
 export * from "./intro-slides.js";
+export * from "./brand.js";

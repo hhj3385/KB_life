@@ -1,7 +1,7 @@
 import html2canvas from "html2canvas";
 import { useState, useEffect, useCallback, type RefObject } from "react";
 
-const FILE_NAME = "KB-봉사자증.png";
+const FILE_NAME = "예비봉사자증.png";
 
 export function useCardCapture(cardRef: RefObject<HTMLDivElement | null>) {
   const [cachedBlob, setCachedBlob] = useState<Blob | null>(null);
@@ -92,8 +92,8 @@ export function useCardCapture(cardRef: RefObject<HTMLDivElement | null>) {
     if (navigator.canShare?.({ files: [file] })) {
       try {
         await navigator.share({
-          title: "KB 라이프 봉사자증",
-          text: "KB 라이프 10기 봉사자증을 발급받았어요! 🌱\n#KB라이프 #청소년봉사 #봉사자증",
+          title: "전국청소년자원봉사대회 예비 봉사자증",
+          text: "전국청소년자원봉사대회 예비 봉사자증을 발급받았어요! 🌱\n#청소년봉사 #전국청소년자원봉사대회 #봉사자증",
           files: [file],
         });
         return true;

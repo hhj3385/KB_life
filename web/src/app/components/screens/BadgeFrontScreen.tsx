@@ -2,8 +2,9 @@ import { Download, Share2, RotateCw } from "lucide-react";
 import { useState } from "react";
 import type { RefObject } from "react";
 import type { ResultType, CharacterConfig } from "@kb-booth/shared";
-import { RESULT_CONTENT, DEFAULT_CHARACTER } from "@kb-booth/shared";
+import { RESULT_CONTENT, DEFAULT_CHARACTER, BRAND } from "@kb-booth/shared";
 import { CharacterImage } from "../../../components/character/CharacterImage";
+import { AppHeader } from "../../../components/layout/AppHeader";
 
 const TYPE_COLOR: Record<ResultType, string> = {
   investigator: "#6BB5FF",
@@ -33,7 +34,7 @@ export function BadgeFrontScreen({
   photoUrl,
   nickname,
   pledge = "봉사로 세상을 바꾸겠습니다!",
-  cardNo = "KB-2026-00001",
+  cardNo = "전국청소년자원봉사대회-2026-00001",
   issuedAt = "2026.05.11",
   cardRef,
   onFlip,
@@ -51,8 +52,10 @@ export function BadgeFrontScreen({
   const [swapped, setSwapped] = useState(false);
 
   return (
-    <div className="relative min-h-full pt-12 pb-28 px-5">
-      <div className="mt-3 text-center">
+    <div className="relative min-h-full pb-28">
+      <AppHeader pageLabel="봉사자증" />
+      <div className="px-5">
+      <div className="mt-2 text-center">
         <h1 className="text-[#1E1E1E] tracking-tight" style={{ fontSize: 22, fontWeight: 800 }}>
           봉사자증이 발급됐어요!
         </h1>
@@ -77,23 +80,18 @@ export function BadgeFrontScreen({
           {/* Header */}
           <div className="px-5 pt-5 flex items-center justify-between relative">
             <img
-              src="/assets/logos/kb-life.png"
-              alt="KB 라이프"
-              style={{ height: 20, width: "auto", mixBlendMode: "multiply" }}
+              src={BRAND.logoContest}
+              alt={BRAND.contest}
+              style={{ height: 22, width: "auto", mixBlendMode: "multiply" }}
             />
             <span className="text-[#1E1E1E]/70 text-[10px]" style={{ fontWeight: 600 }}>
               VOLUNTEER ID
             </span>
           </div>
-          <div className="px-5 mt-2 relative">
-            <div className="text-[#1E1E1E]" style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
-              10기 봉사자증
+          <div className="px-5 mt-1 relative">
+            <div className="text-[#1E1E1E]" style={{ fontSize: 16, fontWeight: 800, lineHeight: 1.1 }}>
+              예비 봉사자증
             </div>
-            <img
-              src="/assets/logos/volunteer.png"
-              alt="전국중고생 자원봉사대회"
-              style={{ height: 28, width: "auto", marginTop: 3, mixBlendMode: "multiply" }}
-            />
           </div>
 
           {/* Body */}
@@ -176,7 +174,7 @@ export function BadgeFrontScreen({
 
           {/* Footer */}
           <div className="px-5 py-3 mt-3 flex items-center justify-between">
-            <span className="text-[#1E1E1E]/60 text-[10px]" style={{ letterSpacing: 1 }}>
+            <span className="text-[#1E1E1E]/60" style={{ fontSize: 8, letterSpacing: 0.5 }}>
               NO. {cardNo}
             </span>
             <div className="flex gap-1">
@@ -192,6 +190,7 @@ export function BadgeFrontScreen({
         <ActionBtn icon={<Download className="w-4 h-4" />} label="이미지 저장" onClick={onDownload} />
         <ActionBtn icon={<Share2 className="w-4 h-4" />} label="공유" onClick={onShare} />
       </div>
+      </div>{/* /px-5 */}
 
       <div className="absolute bottom-6 left-5 right-5">
         <button
