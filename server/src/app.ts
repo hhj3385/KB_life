@@ -58,7 +58,7 @@ export async function buildApp(opts: { logger?: boolean } = {}) {
 
   // 프로덕션: Vite 빌드 결과물 서빙 + SPA fallback
   if (process.env.NODE_ENV === "production") {
-    const webDist = path.resolve(__dirname, "../../../web/dist");
+    const webDist = path.resolve(__dirname, "../../web/dist");
     app.log.warn(`[static] serving web from ${webDist}`);
     await app.register(fastifyStatic, {
       root: webDist,
