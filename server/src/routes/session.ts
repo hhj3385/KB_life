@@ -5,9 +5,24 @@ import { setSessionCookie, verifySessionOwnership } from "../lib/session-auth.js
 
 export async function sessionRoutes(fastify: FastifyInstance) {
   // POST /api/session — 세션 생성 + 사진 업로드
+  // 진입 시 선택한 장소는 ?locationId= 쿼리로 전달 (multipart 본문과 충돌 방지)
   // IP당 분당 5회 제한은 index.ts에서 rate-limit 플러그인으로 처리
-  fastify.post("/api/session", async (request, reply) => {
+  fastify.post<{ Querystring: { locationId?: string } }>("/api/session", async (request, reply) => {
     let photoPath: string | undefined;
+
+    // 장소 검증 — 전달됐다면 활성 장소여야 함
+    let locationId: string | null = null;
+    const rawLocationId = request.query.locationId;
+    if (rawLocationId) {
+      const location = await prisma.location.findUnique({ where: { id: rawLocationId } });
+      if (!location || !location.active) {
+        return reply.code(400).send({
+          ok: false,
+          error: { code: "INVALID_LOCATION", message: "선택한 장소를 찾을 수 없습니다" },
+        });
+      }
+      locationId = location.id;
+    }
 
     try {
       // multipart/form-data로 사진이 왔을 때 처리
@@ -30,6 +45,7 @@ export async function sessionRoutes(fastify: FastifyInstance) {
       data: {
         expiresAt: calcExpiry(),
         photoPath: photoPath ?? null,
+        locationId,
       },
     });
 
@@ -54,6 +70,7 @@ export async function sessionRoutes(fastify: FastifyInstance) {
       data: {
         id: session.id,
         hasPhoto: !!session.photoPath,
+        locationId: session.locationId,
         consentedAt: session.consentedAt,
         resultType: session.resultType,
         scores,

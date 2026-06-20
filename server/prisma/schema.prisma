@@ -12,6 +12,10 @@ model Session {
   createdAt   DateTime @default(now())
   expiresAt   DateTime
 
+  // 진입 시 선택한 장소 (장소별 경품 추첨 대상)
+  locationId  String?
+  location    Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
   consentedAt DateTime?
 
   // 입장 사진 (홈서버 로컬 저장)
@@ -45,18 +49,43 @@ model Session {
   // 뽑기
   prizeDrawn  Boolean  @default(false)
   prizeRank   Int?
+  // 추첨된 경품 (장소별 Prize). 경품이 삭제돼도 기록이 남도록 이름은 스냅샷으로 보관
+  prizeId     Int?
+  prizeName   String?
   drawnAt     DateTime?
 
   @@index([createdAt])
   @@index([resultType])
+  @@index([locationId])
+}
+
+// 부스 운영 장소 — 장소마다 경품 풀이 따로 존재
+model Location {
+  id        String    @id @default(uuid())
+  name      String
+  // 진입 화면 노출 여부 (소진·미운영 장소는 숨김)
+  active    Boolean   @default(true)
+  // 진입 화면 정렬 순서
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  prizes    Prize[]
+  sessions  Session[]
+
+  @@index([active, sortOrder])
 }
 
 model Prize {
-  id        Int    @id @default(autoincrement())
-  rank      Int
-  name      String
-  total     Int
-  remaining Int
+  id         Int      @id @default(autoincrement())
+  // 소속 장소 — 장소 삭제 시 경품도 함께 삭제
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  rank       Int      @default(0)
+  name       String
+  total      Int
+  remaining  Int
+
+  @@index([locationId])
 }
 
 model EventLog {

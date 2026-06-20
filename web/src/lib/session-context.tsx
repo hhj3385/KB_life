@@ -3,6 +3,7 @@ import type { ResultType, CharacterConfig, ScoreResult } from "@kb-booth/shared"
 
 interface SessionState {
   sessionId: string | null;
+  locationId: string | null;
   responses: number[];
   resultType: ResultType | null;
   scores: Record<ResultType, number> | null;
@@ -14,7 +15,7 @@ interface SessionState {
 }
 
 interface SessionActions {
-  initSession: (id: string) => void;
+  initSession: (id: string, locationId?: string | null) => void;
   setResponses: (responses: number[]) => void;
   setResult: (result: ScoreResult) => void;
   setCharacter: (config: CharacterConfig) => void;
@@ -26,6 +27,7 @@ interface SessionActions {
 
 const defaultState: SessionState = {
   sessionId: null,
+  locationId: null,
   responses: [],
   resultType: null,
   scores: null,
@@ -41,8 +43,8 @@ const SessionContext = createContext<(SessionState & SessionActions) | null>(nul
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<SessionState>(defaultState);
 
-  const initSession = useCallback((id: string) => {
-    setState({ ...defaultState, sessionId: id });
+  const initSession = useCallback((id: string, locationId: string | null = null) => {
+    setState({ ...defaultState, sessionId: id, locationId });
   }, []);
 
   const setResponses = useCallback((responses: number[]) => {

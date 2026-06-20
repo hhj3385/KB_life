@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { RefreshCw, LogOut, Users, CheckCircle2, Clock, Gift, Trophy, Activity } from "lucide-react";
+import { RefreshCw, LogOut, Users, CheckCircle2, Clock, Gift, Activity } from "lucide-react";
+import { LocationsManager } from "../app/components/admin/LocationsManager";
 
 const STORAGE_KEY = "kb_admin_key";
 
@@ -32,14 +33,6 @@ interface Session {
   realName: string | null;
   contact: string | null;
   birthDate: string | null;
-}
-
-interface Prize {
-  id: number;
-  rank: number;
-  name: string;
-  total: number;
-  remaining: number;
 }
 
 interface Log {
@@ -223,45 +216,6 @@ function SessionsTab({ sessions }: { sessions: Session[] }) {
   );
 }
 
-// ── 경품 탭 ───────────────────────────────────────────────
-function PrizesTab({ prizes }: { prizes: Prize[] }) {
-  if (prizes.length === 0) {
-    return (
-      <div className="bg-white rounded-2xl p-8 shadow-sm text-center">
-        <Trophy className="w-8 h-8 text-[#1E1E1E]/20 mx-auto mb-2" />
-        <p className="text-[#1E1E1E]/50" style={{ fontSize: 13 }}>경품 데이터 없음</p>
-        <p className="text-[#1E1E1E]/30 mt-1" style={{ fontSize: 11 }}>Prize 테이블에 데이터를 추가하세요</p>
-      </div>
-    );
-  }
-  return (
-    <div className="space-y-3">
-      {prizes.map((p) => {
-        const pct = p.total > 0 ? Math.round((p.remaining / p.total) * 100) : 0;
-        const barColor = pct > 50 ? "#5DD3B0" : pct > 20 ? "#FFCC00" : "#FF7E6B";
-        return (
-          <div key={p.id} className="bg-white rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <span className="text-[#1E1E1E]/40" style={{ fontSize: 10, fontWeight: 600 }}>{p.rank}등</span>
-                <p className="text-[#1E1E1E]" style={{ fontSize: 15, fontWeight: 700 }}>{p.name}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[#1E1E1E]" style={{ fontSize: 28, fontWeight: 900, lineHeight: 1 }}>{p.remaining}</p>
-                <p className="text-[#1E1E1E]/40" style={{ fontSize: 9 }}>/ {p.total}개</p>
-              </div>
-            </div>
-            <div className="h-2 bg-[#F0EDE4] rounded-full overflow-hidden">
-              <div className="h-full rounded-full" style={{ width: `${pct}%`, background: barColor, transition: "width 0.5s" }} />
-            </div>
-            <p className="text-right text-[#1E1E1E]/40 mt-1" style={{ fontSize: 9 }}>잔여 {pct}%</p>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 // ── 로그 탭 ───────────────────────────────────────────────
 function LogsTab({ logs }: { logs: Log[] }) {
   const LOG_COLOR: Record<string, string> = {
@@ -319,7 +273,6 @@ export function AdminPage() {
 
   const [stats, setStats] = useState<Stats | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [prizes, setPrizes] = useState<Prize[]>([]);
   const [logs, setLogs] = useState<Log[]>([]);
   const [tab, setTab] = useState<Tab>("stats");
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
@@ -327,15 +280,13 @@ export function AdminPage() {
   const fetchAll = useCallback(async (k: string) => {
     setLoading(true);
     try {
-      const [s, sessData, p, l] = await Promise.all([
+      const [s, sessData, l] = await Promise.all([
         apiFetch<Stats>("/api/admin/stats", k),
         apiFetch<{ sessions: Session[] }>("/api/admin/sessions?limit=50", k),
-        apiFetch<Prize[]>("/api/admin/prizes", k),
         apiFetch<Log[]>("/api/admin/logs?limit=30", k),
       ]);
       setStats(s);
       setSessions(sessData.sessions);
-      setPrizes(p);
       setLogs(l);
       setAuthed(true);
       setLastRefreshed(new Date());
@@ -426,7 +377,7 @@ export function AdminPage() {
       <div className="px-5 py-4 pb-12">
         {tab === "stats"    && stats    && <StatsTab stats={stats} />}
         {tab === "sessions"              && <SessionsTab sessions={sessions} />}
-        {tab === "prizes"                && <PrizesTab prizes={prizes} />}
+        {tab === "prizes"                && <LocationsManager authKey={key} />}
         {tab === "logs"                  && <LogsTab logs={logs} />}
       </div>
     </div>

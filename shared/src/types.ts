@@ -22,4 +22,31 @@ export interface SessionData {
   nickname?: string;
   pledge?: string;
   cardNo?: string;
+  locationId?: string;
+}
+
+// 부스 운영 장소
+export interface Location {
+  id: string;
+  name: string;
+  active: boolean;
+  sortOrder: number;
+}
+
+// 장소별 경품
+export interface Prize {
+  id: number;
+  locationId: string;
+  rank: number;
+  name: string;
+  total: number;
+  remaining: number;
+}
+
+// 경품 추첨 결과
+export interface DrawResult {
+  // 추첨된 경품 (소진 시 null)
+  prize: { id: number; name: string; rank: number } | null;
+  // 소진으로 뽑지 못한 경우 true
+  soldOut: boolean;
 }

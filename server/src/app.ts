@@ -13,6 +13,8 @@ import { characterRoutes } from "./routes/character.js";
 import { issueRoutes } from "./routes/issue.js";
 import { photoRoutes } from "./routes/photo.js";
 import { adminRoutes } from "./routes/admin.js";
+import { locationRoutes } from "./routes/locations.js";
+import { drawRoutes } from "./routes/draw.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -72,6 +74,8 @@ export async function buildApp(opts: { logger?: boolean } = {}) {
   }
 
   await app.register(sessionRoutes);
+  await app.register(locationRoutes);
+  await app.register(drawRoutes);
   await app.register(testRoutes);
   await app.register(characterRoutes);
   await app.register(issueRoutes);

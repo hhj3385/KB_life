@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { LocationInputSchema, PrizeInputSchema, PrizeUpdateSchema } from "@kb-booth/shared";
 import { prisma } from "../lib/db.js";
 
 const ADMIN_KEY = process.env.ADMIN_KEY ?? "kb-admin-2026";
@@ -91,10 +92,130 @@ export async function adminRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // GET /api/admin/prizes — 경품 재고
-  fastify.get("/api/admin/prizes", async () => {
-    const prizes = await prisma.prize.findMany({ orderBy: { rank: "asc" } });
-    return { ok: true, data: prizes };
+  // ── 장소 관리 ────────────────────────────────────────────
+
+  // GET /api/admin/locations — 장소 목록 + 장소별 경품·재고 집계
+  fastify.get("/api/admin/locations", async () => {
+    const locations = await prisma.location.findMany({
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      include: { prizes: { orderBy: [{ rank: "asc" }, { id: "asc" }] } },
+    });
+
+    const data = locations.map((loc) => {
+      const totalRemaining = loc.prizes.reduce((s, p) => s + p.remaining, 0);
+      const totalStock = loc.prizes.reduce((s, p) => s + p.total, 0);
+      return {
+        id: loc.id,
+        name: loc.name,
+        active: loc.active,
+        sortOrder: loc.sortOrder,
+        createdAt: loc.createdAt,
+        totalRemaining,
+        totalStock,
+        prizes: loc.prizes,
+      };
+    });
+
+    return { ok: true, data };
+  });
+
+  // POST /api/admin/locations — 장소 생성
+  fastify.post<{ Body: unknown }>("/api/admin/locations", async (request, reply) => {
+    const parsed = LocationInputSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.code(400).send({ ok: false, error: { code: "INVALID_LOCATION", message: parsed.error.errors[0].message } });
+    }
+    const location = await prisma.location.create({
+      data: {
+        name: parsed.data.name,
+        active: parsed.data.active ?? true,
+        sortOrder: parsed.data.sortOrder ?? 0,
+      },
+    });
+    return reply.code(201).send({ ok: true, data: location });
+  });
+
+  // PATCH /api/admin/locations/:id — 장소 수정 (이름·노출·정렬)
+  fastify.patch<{ Params: { id: string }; Body: unknown }>("/api/admin/locations/:id", async (request, reply) => {
+    const parsed = LocationInputSchema.partial().safeParse(request.body);
+    if (!parsed.success) {
+      return reply.code(400).send({ ok: false, error: { code: "INVALID_LOCATION", message: parsed.error.errors[0].message } });
+    }
+    const location = await prisma.location.update({ where: { id: request.params.id }, data: parsed.data });
+    return reply.send({ ok: true, data: location });
+  });
+
+  // DELETE /api/admin/locations/:id — 장소 삭제 (경품 함께 삭제)
+  fastify.delete<{ Params: { id: string } }>("/api/admin/locations/:id", async (request, reply) => {
+    await prisma.location.delete({ where: { id: request.params.id } });
+    return reply.send({ ok: true, data: null });
+  });
+
+  // ── 경품 관리 (장소 소속) ─────────────────────────────────
+
+  // POST /api/admin/locations/:id/prizes — 장소에 경품 등록
+  fastify.post<{ Params: { id: string }; Body: unknown }>(
+    "/api/admin/locations/:id/prizes",
+    async (request, reply) => {
+      const parsed = PrizeInputSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.code(400).send({ ok: false, error: { code: "INVALID_PRIZE", message: parsed.error.errors[0].message } });
+      }
+      const location = await prisma.location.findUnique({ where: { id: request.params.id } });
+      if (!location) {
+        return reply.code(404).send({ ok: false, error: { code: "LOCATION_NOT_FOUND", message: "장소를 찾을 수 없습니다" } });
+      }
+      const prize = await prisma.prize.create({
+        data: {
+          locationId: location.id,
+          name: parsed.data.name,
+          rank: parsed.data.rank ?? 0,
+          total: parsed.data.total,
+          remaining: parsed.data.total, // 등록 시 재고 = 총 수량
+        },
+      });
+      return reply.code(201).send({ ok: true, data: prize });
+    },
+  );
+
+  // PATCH /api/admin/prizes/:id — 경품 수정 (이름·등급·수량 보정)
+  fastify.patch<{ Params: { id: string }; Body: unknown }>("/api/admin/prizes/:id", async (request, reply) => {
+    const id = parseInt(request.params.id, 10);
+    const parsed = PrizeUpdateSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.code(400).send({ ok: false, error: { code: "INVALID_PRIZE", message: parsed.error.errors[0].message } });
+    }
+    const current = await prisma.prize.findUnique({ where: { id } });
+    if (!current) {
+      return reply.code(404).send({ ok: false, error: { code: "PRIZE_NOT_FOUND", message: "경품을 찾을 수 없습니다" } });
+    }
+
+    const { name, rank, total, remaining } = parsed.data;
+    // total을 늘리면 그 증가분만큼 remaining도 보충 (refill). remaining을 직접 주면 그 값 우선
+    let nextRemaining = remaining ?? current.remaining;
+    if (remaining === undefined && total !== undefined && total > current.total) {
+      nextRemaining = current.remaining + (total - current.total);
+    }
+    const nextTotal = total ?? current.total;
+    // remaining은 0~total 범위로 클램프
+    nextRemaining = Math.max(0, Math.min(nextRemaining, nextTotal));
+
+    const prize = await prisma.prize.update({
+      where: { id },
+      data: {
+        ...(name !== undefined ? { name } : {}),
+        ...(rank !== undefined ? { rank } : {}),
+        total: nextTotal,
+        remaining: nextRemaining,
+      },
+    });
+    return reply.send({ ok: true, data: prize });
+  });
+
+  // DELETE /api/admin/prizes/:id — 경품 삭제
+  fastify.delete<{ Params: { id: string } }>("/api/admin/prizes/:id", async (request, reply) => {
+    await prisma.prize.delete({ where: { id: parseInt(request.params.id, 10) } });
+    return reply.send({ ok: true, data: null });
   });
 
   // GET /api/admin/logs — 최근 이벤트 로그

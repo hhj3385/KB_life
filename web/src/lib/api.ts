@@ -1,4 +1,12 @@
-import type { ResultType, CharacterConfig } from "@kb-booth/shared";
+import type { ResultType, CharacterConfig, DrawResult } from "@kb-booth/shared";
+
+// 진입 장소 선택용 (공개 목록)
+export interface PublicLocation {
+  id: string;
+  name: string;
+  sortOrder: number;
+  remainingTotal: number;
+}
 
 export class ApiError extends Error {
   constructor(
@@ -34,9 +42,21 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  // 공개 장소 목록 (진입 화면)
+  locations: {
+    list: () => request<PublicLocation[]>("/api/locations"),
+  },
+
   session: {
-    create: () =>
-      request<{ sessionId: string }>("/api/session", { method: "POST" }),
+    create: (locationId?: string) =>
+      request<{ sessionId: string }>(
+        locationId ? `/api/session?locationId=${encodeURIComponent(locationId)}` : "/api/session",
+        { method: "POST" },
+      ),
+
+    // 경품 추첨 (1회). soldOut이면 prize === null
+    draw: (id: string) =>
+      request<DrawResult>(`/api/session/${id}/draw`, { method: "POST" }),
 
     consent: (id: string) =>
       request<null>(`/api/session/${id}/consent`, { method: "POST" }),

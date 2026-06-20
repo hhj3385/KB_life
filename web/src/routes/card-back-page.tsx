@@ -18,7 +18,7 @@ export function CardBackPage() {
       character={character ?? undefined}
       cardNo={cardNo ?? undefined}
       onFlip={() => void navigate(`/s/${id}/card`)}
-      onDrawPrize={() => alert("경품 뽑기존에서 운영자에게 화면을 보여주세요!")}
+      onDrawPrize={() => void navigate(`/s/${id}/draw`)}
     />
   );
 }
