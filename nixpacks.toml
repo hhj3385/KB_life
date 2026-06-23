@@ -1,0 +1,14 @@
+# Nixpacks 빌드 설정
+#
+# 문제: Nixpacks 기본 install은 NODE_ENV=production으로 실행돼 devDependencies(typescript=tsc,
+#       vite 등)를 건너뛴다. 그 뒤 빌드에서 `tsc: not found`로 실패한다.
+#
+# 해법: install 단계를 직접 지정해 NODE_ENV=development로 devDeps까지 한 번에 설치한다.
+#       (NODE_ENV 지정은 이 명령에만 적용되며, 런타임 start 단계는 이미지 기본 production 유지)
+#       단일 install이라 "reinstall from scratch" purge 충돌도 발생하지 않는다.
+
+[phases.install]
+cmds = ["NODE_ENV=development pnpm install --no-frozen-lockfile"]
+
+[phases.build]
+cmds = ["pnpm build"]
